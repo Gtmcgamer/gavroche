@@ -7,6 +7,7 @@ import productRoutes from './routes/products.js'
 import dailyMenuRoutes from './routes/dailyMenu.js'
 import orderRoutes from './routes/orders.js'
 import analyticsRoutes from './routes/analytics.js'
+import User from './models/User.js'
 
 dotenv.config()
 
@@ -34,10 +35,21 @@ app.use((err, _req, res, _next) => {
 const PORT = process.env.PORT || 3001
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/gavroche'
 
+async function seedAdmin() {
+  const adminExists = await User.findOne({ role: 'admin' })
+  if (!adminExists) {
+    const defaultUsername = process.env.ADMIN_USERNAME || 'admin'
+    const defaultPassword = process.env.ADMIN_PASSWORD || 'gavroche2024'
+    await User.create({ username: defaultUsername, password: defaultPassword, role: 'admin' })
+    console.log(`👤 Compte admin créé — identifiants: ${defaultUsername} / ${defaultPassword}`)
+  }
+}
+
 mongoose
   .connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connecté')
+    await seedAdmin()
     app.listen(PORT, () => console.log(`🚀 Serveur démarré sur le port ${PORT}`))
   })
   .catch((err) => {
