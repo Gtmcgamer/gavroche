@@ -12,22 +12,8 @@ dotenv.config()
 
 const app = express()
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map((u) => u.trim())
-  : null
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!allowedOrigins) {
-      callback(null, true)
-      return
-    }
-    if (!origin || allowedOrigins.includes(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
+  origin: true,
   credentials: true,
 }))
 app.use(express.json({ limit: '10mb' }))
