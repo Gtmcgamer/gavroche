@@ -96,8 +96,13 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    const finalCategory = isNewCategory ? newCategoryInput.trim() : form.category.trim()
     if (!form.name || !form.description || !form.price) {
       setFormError('Nom, description et prix sont requis.')
+      return
+    }
+    if (!finalCategory) {
+      setFormError('La catégorie est requise.')
       return
     }
     setSaving(true)
@@ -105,6 +110,7 @@ export default function AdminProducts() {
     try {
       const payload = {
         ...form,
+        category: finalCategory,
         price: parseFloat(form.price),
       }
       if (editingId) {
@@ -115,8 +121,9 @@ export default function AdminProducts() {
         setProducts((prev) => [res.data, ...prev])
       }
       setFormOpen(false)
-    } catch (err) {
-      setFormError('Erreur lors de la sauvegarde.')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setFormError(msg || 'Erreur lors de la sauvegarde.')
       console.error(err)
     } finally {
       setSaving(false)
